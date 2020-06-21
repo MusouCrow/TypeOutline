@@ -24,8 +24,8 @@ Shader "Custom/Outline"
             SAMPLER(sampler_CameraDepthTexture);
             float4 _CameraDepthTexture_TexelSize;
 
-            TEXTURE2D(_TestTexture);
-            SAMPLER(sampler_TestTexture);
+            TEXTURE2D(_MaskTexture);
+            SAMPLER(sampler_MaskTexture);
 
             float4 _Color;
             float _Thickness;
@@ -75,7 +75,7 @@ Shader "Custom/Outline"
                 for (int i = 0; i < 4 ; i++)
                 {
                     depths[i] = SampleDepth(input.uv[i]);
-                    alphas[i] = SAMPLE_DEPTH_TEXTURE(_TestTexture, sampler_TestTexture, input.uv[i]);
+                    alphas[i] = SAMPLE_DEPTH_TEXTURE(_MaskTexture, sampler_MaskTexture, input.uv[i]);
                 }
 
                 float finiteDifference0 = (depths[1] - depths[0]) * (alphas[1] - alphas[0]);

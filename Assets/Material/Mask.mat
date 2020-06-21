@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Red
+  m_Name: Mask
   m_Shader: {fileID: -6465566751694194690, guid: 99ff661a9a717420e9d13fed4ca60ab4,
     type: 3}
   m_ShaderKeywords: 
