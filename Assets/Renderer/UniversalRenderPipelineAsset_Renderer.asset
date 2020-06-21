@@ -17,11 +17,12 @@ MonoBehaviour:
     Event: 200
     layerMask:
       serializedVersion: 2
-      m_Bits: 256
-    material: {fileID: 2100000, guid: beb5694e6f4524305941abb7b75f8517, type: 2}
-    passName: DepthOnly
+      m_Bits: 4294967295
+    material: {fileID: 0}
+    passName: Mask
     cmdName: Mask PrePass
     textureName: _MaskTexture
+    clearColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

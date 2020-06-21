@@ -12,6 +12,7 @@ public class RenderToTexture : ScriptableRendererFeature {
         public string passName;
         public string cmdName;
         public string textureName;
+        public Color clearColor = Color.black;
     }
     
     public Settings settings = new Settings();
@@ -20,11 +21,10 @@ public class RenderToTexture : ScriptableRendererFeature {
     private RenderTargetHandle destination;
 
     public override void Create() {
-        var s = this.settings;
-        this.pass = new RenderToTexturePass(s.range, s.layerMask, s.material, s.passName, s.cmdName, s.textureName);
-        this.pass.renderPassEvent = s.Event;
+        this.pass = new RenderToTexturePass(this.settings);
+        this.pass.renderPassEvent = this.settings.Event;
 
-        this.destination.Init(s.textureName);
+        this.destination.Init(this.settings.textureName);
     }
 
     // Here you can inject one or multiple render passes in the renderer.

@@ -78,14 +78,16 @@ Shader "Custom/Outline"
                     alphas[i] = SAMPLE_DEPTH_TEXTURE(_MaskTexture, sampler_MaskTexture, input.uv[i]);
                 }
 
-                float finiteDifference0 = (depths[1] - depths[0]) * (alphas[1] - alphas[0]);
-                float finiteDifference1 = (depths[3] - depths[2]) * (alphas[3] - alphas[2]);
+                float finiteDifference0 = (depths[1] - depths[0]);
+                float finiteDifference1 = (depths[3] - depths[2]);
                 float edge = sqrt(pow(finiteDifference0, 2) + pow(finiteDifference1, 2)) * 100;
                 float threshold = (1 / _Sensitivity) * depths[0];
-                edge = edge > threshold ? 1 : 0;
+                float alpha = ceil(alphas[0] * alphas[1] * alphas[2] * alphas[3]);
+
+                edge = edge > threshold ? alpha : 0;
 
                 float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv[0]);
-
+                
                 return ((1 - edge) * color) + (edge * lerp(color, _Color,  _Color.a));
             }
 

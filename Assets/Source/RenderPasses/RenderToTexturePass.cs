@@ -9,13 +9,15 @@ class RenderToTexturePass : ScriptableRenderPass {
     private ShaderTagId shaderTagId;
     private string cmdName;
     private string textureName;
+    private new Color clearColor;
 
-    public RenderToTexturePass(RenderQueueRange renderQueueRange, LayerMask layerMask, Material material, string shaderTag, string cmdName, string textureName) {
-        this.filteringSettings = new FilteringSettings(renderQueueRange, layerMask);
-        this.material = material;
-        this.shaderTagId = new ShaderTagId(shaderTag);
-        this.cmdName = cmdName;
-        this.textureName = textureName;
+    public RenderToTexturePass(RenderToTexture.Settings param) {
+        this.filteringSettings = new FilteringSettings(param.range, param.layerMask);
+        this.material = param.material;
+        this.shaderTagId = new ShaderTagId(param.passName);
+        this.cmdName = param.cmdName;
+        this.textureName = param.textureName;
+        this.clearColor = param.clearColor;
     }
 
     public void Setup(RenderTargetHandle destination) {
@@ -32,7 +34,7 @@ class RenderToTexturePass : ScriptableRenderPass {
 
         cmd.GetTemporaryRT(this.destination.id, descriptor, FilterMode.Point);
         this.ConfigureTarget(this.destination.Identifier());
-        this.ConfigureClear(ClearFlag.All, Color.black);
+        this.ConfigureClear(ClearFlag.All, this.clearColor);
     }
 
     // Here you can implement the rendering logic.
