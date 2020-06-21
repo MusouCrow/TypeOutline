@@ -24,6 +24,9 @@ Shader "Custom/Outline"
             SAMPLER(sampler_CameraDepthTexture);
             float4 _CameraDepthTexture_TexelSize;
 
+            TEXTURE2D(_TestTexture);
+            SAMPLER(sampler_TestTexture);
+
             float4 _Color;
             float _Thickness;
             float _Sensitivity;
@@ -67,20 +70,22 @@ Shader "Custom/Outline"
             float4 frag(Varyings input) : SV_Target
             {
                 float depths[4];
+                float alphas[4];
 
                 for (int i = 0; i < 4 ; i++)
                 {
                     depths[i] = SampleDepth(input.uv[i]);
+                    alphas[i] = SAMPLE_DEPTH_TEXTURE(_TestTexture, sampler_TestTexture, input.uv[i]);
                 }
 
-                float finiteDifference0 = depths[1] - depths[0];
-                float finiteDifference1 = depths[3] - depths[2];
+                float finiteDifference0 = (depths[1] - depths[0]) * (alphas[1] - alphas[0]);
+                float finiteDifference1 = (depths[3] - depths[2]) * (alphas[3] - alphas[2]);
                 float edge = sqrt(pow(finiteDifference0, 2) + pow(finiteDifference1, 2)) * 100;
                 float threshold = (1 / _Sensitivity) * depths[0];
                 edge = edge > threshold ? 1 : 0;
 
                 float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv[0]);
-                
+
                 return ((1 - edge) * color) + (edge * lerp(color, _Color,  _Color.a));
             }
 

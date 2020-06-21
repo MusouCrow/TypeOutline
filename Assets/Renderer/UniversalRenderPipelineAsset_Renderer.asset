@@ -1,5 +1,27 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6946740752248079106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66b9e7da6cb0240029cc6da746ed7b8e, type: 3}
+  m_Name: NewRenderToTexture
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    Event: 200
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 256
+    material: {fileID: 2100000, guid: beb5694e6f4524305941abb7b75f8517, type: 2}
+    passName: DepthOnly
+    cmdName: Test PrePass
+    textureName: _TestTexture
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13,8 +35,9 @@ MonoBehaviour:
   m_Name: UniversalRenderPipelineAsset_Renderer
   m_EditorClassIdentifier: 
   m_RendererFeatures:
+  - {fileID: -6946740752248079106}
   - {fileID: 6167981937644325680}
-  m_RendererFeatureMap: 30cb5096e4129955
+  m_RendererFeatureMap: fefc855b1738989f30cb5096e4129955
   postProcessData: {fileID: 11400000, guid: 2e07f17241f9f42a7b25f7317e76eb15, type: 2}
   shaders:
     blitPS: {fileID: 4800000, guid: c17132b1f77d20942aa75f8429c0f8bc, type: 3}
