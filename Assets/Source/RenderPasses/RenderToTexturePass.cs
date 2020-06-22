@@ -31,6 +31,7 @@ class RenderToTexturePass : ScriptableRenderPass {
     // The render pipeline will ensure target setup and clearing happens in an performance manner.
     public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor) {
         RenderTextureDescriptor descriptor = cameraTextureDescriptor;
+        descriptor.msaaSamples = 1;
 
         cmd.GetTemporaryRT(this.destination.id, descriptor, FilterMode.Point);
         this.ConfigureTarget(this.destination.Identifier());

@@ -51,6 +51,7 @@ class BlitPass : ScriptableRenderPass {
         
         RenderTextureDescriptor opaqueDesc = renderingData.cameraData.cameraTargetDescriptor;
         opaqueDesc.depthBufferBits = 0;
+        opaqueDesc.msaaSamples = 1;
 
         // Can't read and write to same color target, create a temp render target to blit. 
         if (destination == RenderTargetHandle.CameraTarget) {

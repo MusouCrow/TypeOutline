@@ -3,19 +3,19 @@ Shader "Custom/Outline"
     Properties
     {
         [HideInInspector]_MainTex("Base (RGB)", 2D) = "white" {}
-        _Color("Color", Color) = (0, 0, 0, 1)
-        _Thickness("Thickness", float) = 1
-        _Sensitivity("Sensitivity", float) = 1
+        _Rate("Rate", Float) = 0.1
+        _Strength("Strength", Float) = 0.3
     }
     SubShader
     {
         Pass
         {
             HLSLPROGRAM
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             #pragma vertex vert
 			#pragma fragment frag
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
@@ -27,9 +27,8 @@ Shader "Custom/Outline"
             TEXTURE2D(_MaskTexture);
             SAMPLER(sampler_MaskTexture);
 
-            float4 _Color;
-            float _Thickness;
-            float _Sensitivity;
+            float _Rate;
+            float _Strength;
 
             struct Attributes
             {
@@ -39,56 +38,70 @@ Shader "Custom/Outline"
 
             struct Varyings
             {
-                float2 uv[4] : TEXCOORD0;
                 float4 vertex : SV_POSITION;
+                float2 uv[9] : TEXCOORD0;
             };
-
-            float SampleDepth(float2 uv)
-            {
-                return SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, uv);
-            }
 
             Varyings vert(Attributes input)
             {
-                Varyings output = (Varyings)0;
-                
+                Varyings output;
+
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 output.vertex = vertexInput.positionCS;
 
-                float halfScaleFloor = floor(_Thickness * 0.5);
-                float halfScaleCeil = ceil(_Thickness * 0.5);
-                float2 texel = 1 / float2(_CameraDepthTexture_TexelSize.z, _CameraDepthTexture_TexelSize.w);
-
-                output.uv[0] = input.uv - float2(texel.x, texel.y) * halfScaleFloor;
-                output.uv[1] = input.uv + float2(texel.x, texel.y) * halfScaleCeil;
-                output.uv[2] = input.uv + float2(texel.x * halfScaleCeil, -texel.y * halfScaleFloor);
-                output.uv[3] = input.uv + float2(-texel.x * halfScaleFloor, texel.y * halfScaleCeil);
+                output.uv[0] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(-1, -1);
+                output.uv[1] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(0, -1);
+                output.uv[2] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(1, -1);
+                output.uv[3] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(-1, 0);
+                output.uv[4] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(0, 0);
+                output.uv[5] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(1, 0);
+                output.uv[6] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(-1, 1);
+                output.uv[7] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(0, 1);
+                output.uv[8] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(1, 1);
 
                 return output;
             }
 
             float4 frag(Varyings input) : SV_Target
             {
-                float depths[4];
-                float alphas[4];
+                const half Gx[9] = {
+                    -1,  0,  1,
+                    -2,  0,  2,
+                    -1,  0,  1
+                };
 
-                for (int i = 0; i < 4 ; i++)
-                {
-                    depths[i] = SampleDepth(input.uv[i]);
-                    alphas[i] = SAMPLE_DEPTH_TEXTURE(_MaskTexture, sampler_MaskTexture, input.uv[i]);
+                const half Gy[9] = {
+                    -1, -2, -1,
+                    0,  0,  0,
+                    1,  2,  1
+                };
+                
+                float edgeY = 0;
+                float edgeX = 0;    
+                float luminance = 0;
+
+                float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv[4]);
+                float mask = 1;
+                
+                for (int i = 0; i < 9; i++) {
+                    mask *= SAMPLE_DEPTH_TEXTURE(_MaskTexture, sampler_MaskTexture, input.uv[i]);
                 }
 
-                float finiteDifference0 = (depths[1] - depths[0]);
-                float finiteDifference1 = (depths[3] - depths[2]);
-                float edge = sqrt(pow(finiteDifference0, 2) + pow(finiteDifference1, 2)) * 100;
-                float threshold = (1 / _Sensitivity) * depths[0];
-                float alpha = ceil(alphas[0] * alphas[1] * alphas[2] * alphas[3]);
+                if (mask == 0) {
+                    return color;
+                }
 
-                edge = edge > threshold ? alpha : 0;
-
-                float4 color = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv[0]);
+                for (int i = 0; i < 9; i++) {
+                    float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, input.uv[i]);
+                    luminance = LinearEyeDepth(depth, _ZBufferParams) * 0.1;
+                    edgeX += luminance * Gx[i];
+                    edgeY += luminance * Gy[i];
+                }
                 
-                return ((1 - edge) * color) + (edge * lerp(color, _Color,  _Color.a));
+                float edge = (1 - abs(edgeX) - abs(edgeY));
+                edge = saturate(edge);
+
+                return lerp(color * 0.5, color, edge);
             }
 
             ENDHLSL
