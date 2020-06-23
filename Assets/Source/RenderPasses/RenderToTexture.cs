@@ -6,7 +6,6 @@ public class RenderToTexture : ScriptableRendererFeature {
     [System.Serializable]
     public class Settings {
         public RenderPassEvent Event = RenderPassEvent.AfterRenderingPrePasses;
-        public RenderQueueRange range = RenderQueueRange.opaque;
         public LayerMask layerMask = -1;
         public Material material;
         public string passName;

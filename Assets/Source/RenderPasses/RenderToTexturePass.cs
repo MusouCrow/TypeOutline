@@ -12,7 +12,7 @@ class RenderToTexturePass : ScriptableRenderPass {
     private new Color clearColor;
 
     public RenderToTexturePass(RenderToTexture.Settings param) {
-        this.filteringSettings = new FilteringSettings(param.range, param.layerMask);
+        this.filteringSettings = new FilteringSettings(RenderQueueRange.all, param.layerMask);
         this.material = param.material;
         this.shaderTagId = new ShaderTagId(param.passName);
         this.cmdName = param.cmdName;
