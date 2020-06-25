@@ -3,8 +3,8 @@ Shader "Custom/Outline"
     Properties
     {
         [HideInInspector]_MainTex("Base (RGB)", 2D) = "white" {}
-        _Rate("Rate", Float) = 0.1
-        _Strength("Strength", Float) = 0.3
+        _Rate("Rate", Float) = 0.5
+        _Strength("Strength", Float) = 0.7
     }
     SubShader
     {
@@ -49,15 +49,15 @@ Shader "Custom/Outline"
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 output.vertex = vertexInput.positionCS;
 
-                output.uv[0] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(-1, -1);
-                output.uv[1] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(0, -1);
-                output.uv[2] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(1, -1);
-                output.uv[3] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(-1, 0);
-                output.uv[4] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(0, 0);
-                output.uv[5] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(1, 0);
-                output.uv[6] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(-1, 1);
-                output.uv[7] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(0, 1);
-                output.uv[8] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(1, 1);
+                output.uv[0] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(-1, -1) * _Rate;
+                output.uv[1] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(0, -1) * _Rate;
+                output.uv[2] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(1, -1) * _Rate;
+                output.uv[3] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(-1, 0) * _Rate;
+                output.uv[4] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(0, 0) * _Rate;
+                output.uv[5] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(1, 0) * _Rate;
+                output.uv[6] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(-1, 1) * _Rate;
+                output.uv[7] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(0, 1) * _Rate;
+                output.uv[8] = input.uv + _CameraDepthTexture_TexelSize.xy * half2(1, 1) * _Rate;
 
                 return output;
             }
@@ -101,7 +101,7 @@ Shader "Custom/Outline"
                 float edge = (1 - abs(edgeX) - abs(edgeY));
                 edge = saturate(edge);
 
-                return lerp(color * 0.5, color, edge);
+                return lerp(color * _Strength, color, edge);
             }
 
             ENDHLSL
